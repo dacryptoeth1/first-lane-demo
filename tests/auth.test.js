@@ -27,6 +27,96 @@ describe('POST /signup', () => {
 
     expect(res.status).toBe(409);
   });
+
+  it('rejects an invalid email format with 400 and mentions email', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'not-an-email', password: 'correct-horse', name: 'Ada' });
+
+    expect(res.status).toBe(400);
+    expect(JSON.stringify(res.body.errors)).toMatch(/email/i);
+  });
+
+  it('rejects a missing email with 400', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ password: 'correct-horse', name: 'Ada' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an empty password with 400 and mentions password', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: '', name: 'Ada' });
+
+    expect(res.status).toBe(400);
+    expect(JSON.stringify(res.body.errors)).toMatch(/password/i);
+  });
+
+  it('rejects a password of 7 characters with 400', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: 'short7c', name: 'Ada' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts a password of exactly 8 characters with 201', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: 'exactly8', name: 'Ada' });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('rejects a missing name with 400 and mentions name', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: 'correct-horse' });
+
+    expect(res.status).toBe(400);
+    expect(JSON.stringify(res.body.errors)).toMatch(/name/i);
+  });
+
+  it('rejects a whitespace-only name with 400', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: 'correct-horse', name: '   ' });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('reports all failing fields when multiple fields are invalid', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'bad-email', password: 'short', name: '   ' });
+
+    expect(res.status).toBe(400);
+    const errorsStr = JSON.stringify(res.body.errors);
+    expect(errorsStr).toMatch(/email/i);
+    expect(errorsStr).toMatch(/password/i);
+    expect(errorsStr).toMatch(/name/i);
+  });
+
+  it('does not create a user when signup is rejected', async () => {
+    await request(app)
+      .post('/signup')
+      .send({ email: 'bad-email', password: 'short', name: '   ' });
+
+    const res = await request(app).get('/users');
+    expect(res.body.users).toHaveLength(0);
+  });
+
+  it('valid signup does not include password or passwordHash in the body', async () => {
+    const res = await request(app)
+      .post('/signup')
+      .send({ email: 'ada@example.com', password: 'correct-horse', name: 'Ada' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.user.password).toBeUndefined();
+    expect(res.body.user.passwordHash).toBeUndefined();
+  });
 });
 
 describe('POST /login', () => {
