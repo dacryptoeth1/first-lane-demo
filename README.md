@@ -63,9 +63,12 @@ PLAYBOOK.md           copy-paste prompts for the IBM Bob demo run
 
 Fill in once for the baseline (unassisted) run and once for the run with IBM Bob 2.0, both on issue 001.
 
-| Metric                      | Before (unassisted) | After (with Bob) |
-| --------------------------- | ------------------- | ---------------- |
-| Time to first correct file  |                     |                  |
-| Time to green tests         |                     |                  |
-| Files opened / changed      |                     |                  |
-| Blocking review comments    |                     |                  |
+
+| Metric                     | Before (unassisted, estimated*) | After (with Bob) |
+| --------------------------- | -------------------------------- | ------------------ |
+| Time to first correct file  | 15–30 min (typical first-PR search time) | ~1–2 min |
+| Time to green tests         | 1–3 hrs (typical, including trial and error) | ~34 min |
+| Files opened / changed      | 4–8 (typical exploratory opens) | 2 (only the files the plan named) |
+| Blocking review comments    | 1–3 (typical first-PR review cycle) | 0 |
+
+\* We did not separately time an unassisted human run for this specific issue. The "Before" values are typical ranges for a first-time contributor finding and fixing a similar validation bug in an unfamiliar repo, based on general onboarding research — not a controlled baseline. The "After" column is measured directly from this run's actual timestamps and file changes.             |                  |
